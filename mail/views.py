@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.shortcuts import HttpResponse, HttpResponseRedirect, render
+from django.shortcuts import HttpResponse, render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -18,7 +18,7 @@ def index(request):
 
     # Everyone else is prompted to sign in
     else:
-        return HttpResponseRedirect(reverse("login"))
+        return redirect("mail:login")
 
 
 @csrf_exempt
@@ -138,7 +138,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+            return redirect("mail:index")
         else:
             return render(request, "mail/login.html", {
                 "message": "Invalid email and/or password."
@@ -149,7 +149,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return redirect("mail:index")
 
 
 def register(request):
@@ -174,6 +174,6 @@ def register(request):
                 "message": "Email address already taken."
             })
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return redirect("mail:index")
     else:
         return render(request, "mail/register.html")
