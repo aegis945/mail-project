@@ -1,17 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Use buttons to toggle between views
-    document.querySelector("#inbox").addEventListener("click", () => load_mailbox("inbox"));
-    document.querySelector("#sent").addEventListener("click", () => load_mailbox("sent"));
-    document.querySelector("#archived").addEventListener("click", () => load_mailbox("archive"));
-    document.querySelector("#compose").addEventListener("click", compose_email);
+    document.querySelector("#inbox").addEventListener("click", () => loadMailbox("inbox"));
+    document.querySelector("#sent").addEventListener("click", () => loadMailbox("sent"));
+    document.querySelector("#archived").addEventListener("click", () => loadMailbox("archive"));
+    document.querySelector("#compose").addEventListener("click", composeEmail);
     document.querySelector("#compose-form").addEventListener("submit", handleFormSubmission);
 
     // By default, load the inbox
-    load_mailbox("inbox");
+    loadMailbox("inbox");
 });
 
-function compose_email() {
+function composeEmail() {
     // Show compose view and hide other viewst
+    document.querySelector("#email-detail").style.display = "none";
     document.querySelector("#emails-view").style.display = "none";
     document.querySelector("#compose-view").style.display = "block";
 
@@ -21,10 +22,11 @@ function compose_email() {
     document.querySelector("#compose-body").value = "";
 }
 
-function load_mailbox(mailbox) {
+function loadMailbox(mailbox) {
     // Show the mailbox and hide other views
     document.querySelector("#emails-view").style.display = "block";
     document.querySelector("#compose-view").style.display = "none";
+    document.querySelector("#email-detail").style.display = "none";
     // Show the mailbox name
     document.querySelector("#emails-view").innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -39,7 +41,12 @@ function load_mailbox(mailbox) {
         } else {
             emails.forEach(email => {
                 const emailElement = document.createElement("div");
-                emailElement.classList.add("card", "mb-2", "p-3", "border-secondary");
+                emailElement.classList.add("card", "mb-2", "p-3", "border-secondary", "email-item");
+
+                if (mailbox === "inbox"){
+                    emailElement.style.backgroundColor = email.read ? "#f1f1f1" : "#ffffff";
+                }
+                
                 emailElement.innerHTML = `
                     <div class="row align-items-center justify-content-center">
 
@@ -57,12 +64,62 @@ function load_mailbox(mailbox) {
                         </div>
                     </div>
                 `;
-                emailElement.addEventListener("click", () => load_email(email.id));
+                emailElement.addEventListener("click", () => {
+                    loadEmail(email.id);
+                    changeReadStatus(email.id, true);
+                });
                 emailContainer.appendChild(emailElement);
             })
         }
         document.querySelector("#emails-view").appendChild(emailContainer);
     })
+}
+
+function loadEmail(emailId) {
+    fetch(`/emails/${emailId}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to fetch email");
+        }
+        return response.json();
+    })
+    .then(email => {
+        changeReadStatus(emailId, true);
+
+        const emailDetail = document.querySelector("#email-detail");
+        emailDetail.innerHTML = `
+            <h3>${email.subject}</h3>
+            <p><strong>From:</strong> ${email.sender}</p>
+            <p><strong>To:</strong> ${email.recipients}</p>
+            <p><strong>Timestamp:</strong> ${email.timestamp}</p>
+            <hr>
+            <p>${email.body}</p>
+        `;
+        document.querySelector("#emails-view").style.display = "none";
+        document.querySelector("#compose-view").style.display = "none";
+        emailDetail.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    })
+}
+
+function changeReadStatus(emailId, isRead) {
+    console.log("changeReadStatus", emailId, isRead);
+    fetch(`/emails/${emailId}`, {
+        method: "PUT",
+        body: JSON.stringify({ 
+            read: isRead
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to update email read status");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
 }
 
 function handleFormSubmission(event) {
@@ -108,7 +165,7 @@ function handleFormSubmission(event) {
         } else {
             messageElement.textContent = "Email sent successfully!";
             messageElement.style.color = "green";
-            load_mailbox("sent");
+            loadMailbox("sent");
         }
 
         messageElement.classList.add("fade-out");

@@ -10,3 +10,9 @@ textarea {
 .fade-out.hidden {
     opacity: 0;
 }
+
+.email-item:hover {
+    border-color: #007bff !important;
+    background: #ffffff !important;
+    cursor: pointer;
+}
