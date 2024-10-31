@@ -8,9 +8,10 @@
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
     <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
     <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'mail:logout' %}">Log Out</a>
+    <a class="btn btn-sm btn-outline-danger" href="{% url 'mail:logout' %}">Log Out</a>
     <hr>
 
+    <div id="message"></div>
     <div id="emails-view">
     </div>
 
