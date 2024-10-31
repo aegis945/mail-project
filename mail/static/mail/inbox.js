@@ -28,7 +28,7 @@ function load_mailbox(mailbox) {
     // Show the mailbox name
     document.querySelector("#emails-view").innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-    fetch('/emails/inbox')
+    fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(emails => {
         document.querySelector("#emails-view").innerHTML += "";
@@ -73,6 +73,22 @@ function handleFormSubmission(event) {
     const body = document.querySelector("#compose-body").value;
     const messageElement = document.querySelector("#message");
 
+    if (subject.trim() === "") {
+        messageElement.textContent = "Error: Subject cannot be empty.";
+        messageElement.style.color = "red";
+
+        messageElement.classList.add("fade-out");
+        setTimeout(() => {
+            messageElement.classList.add("hidden");
+            setTimeout(() => {
+                messageElement.textContent = "";
+                messageElement.classList.remove("fade-out", "hidden");
+            }, 500);
+        }, 3000);
+
+        return;
+    }
+
     fetch("/emails", {
         method: "POST",
         body: JSON.stringify({
@@ -94,10 +110,29 @@ function handleFormSubmission(event) {
             messageElement.style.color = "green";
             load_mailbox("sent");
         }
+
+        messageElement.classList.add("fade-out");
+            setTimeout(() => {
+                messageElement.classList.add("hidden");
+                setTimeout(() => {
+                    messageElement.textContent = "";
+                    messageElement.classList.remove("fade-out", "hidden");
+                }, 500);
+            }, 3000);
     })
     .catch((error) => {
         messageElement.textContent = "An unexpected error occurred";
         messageElement.style.color = "red";
+
+        messageElement.classList.add("fade-out");
+            setTimeout(() => {
+                messageElement.classList.add("hidden");
+                setTimeout(() => {
+                    messageElement.textContent = "";
+                    messageElement.classList.remove("fade-out", "hidden");
+                }, 500);
+            }, 3000);
+
         console.error(error);
     });
 }
