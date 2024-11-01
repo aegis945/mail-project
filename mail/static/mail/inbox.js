@@ -121,7 +121,6 @@ function loadEmail(emailId) {
 }
 
 function changeReadStatus(emailId, isRead) {
-    console.log("changeReadStatus", emailId, isRead);
     fetch(`/emails/${emailId}`, {
         method: "PUT",
         body: JSON.stringify({ 
