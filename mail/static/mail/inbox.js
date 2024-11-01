@@ -96,6 +96,12 @@ function loadEmail(emailId) {
             <p>${email.body}</p>
         `;
 
+        const replyButton = document.createElement("button");
+        replyButton.className = "btn btn-primary mr-3";
+        replyButton.innerText = "Reply";
+        replyButton.addEventListener("click", () => replyEmail(email));
+        emailDetail.appendChild(replyButton);
+        
         const archiveButton = document.createElement("button");
         archiveButton.className = email.archived ? "btn btn-primary" : "btn btn-danger";
         archiveButton.innerText = email.archived ? "Unarchive" : "Archive";
@@ -220,4 +226,22 @@ function handleFormSubmission(event) {
 
         console.error(error);
     });
+}
+
+function replyEmail(originalEmail) {
+    document.querySelector("#email-detail").style.display = "none";
+    document.querySelector("#emails-view").style.display = "none";
+    document.querySelector("#compose-view").style.display = "block";
+
+    document.querySelector("#compose-recipients").value = originalEmail.sender;
+    const originalSubject = originalEmail.subject;
+    const subjectPrefix = "Re: ";
+    
+    if (!originalSubject.startsWith(subjectPrefix)) {
+      document.querySelector("#compose-subject").value = subjectPrefix + originalSubject;
+    } else {
+      document.querySelector("#compose-subject").value = originalSubject;
+    }
+
+    document.querySelector("#compose-body").value = `\n\nOn ${originalEmail.timestamp}, ${originalEmail.sender} wrote:\n${originalEmail.body}\n\n`;
 }
