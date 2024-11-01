@@ -97,13 +97,13 @@ function loadEmail(emailId) {
         `;
 
         const replyButton = document.createElement("button");
-        replyButton.className = "btn btn-primary mr-3";
+        replyButton.className = "btn btn-primary mr-3 mt-2";
         replyButton.innerText = "Reply";
         replyButton.addEventListener("click", () => replyEmail(email));
         emailDetail.appendChild(replyButton);
         
         const archiveButton = document.createElement("button");
-        archiveButton.className = email.archived ? "btn btn-primary" : "btn btn-danger";
+        archiveButton.className = email.archived ? "btn btn-primary mt-2" : "btn btn-danger mt-2";
         archiveButton.innerText = email.archived ? "Unarchive" : "Archive";
 
         archiveButton.addEventListener("click", () => {
