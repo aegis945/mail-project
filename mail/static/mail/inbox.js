@@ -43,7 +43,7 @@ function loadMailbox(mailbox) {
                 const emailElement = document.createElement("div");
                 emailElement.classList.add("card", "mb-2", "p-3", "border-secondary", "email-item");
 
-                if (mailbox === "inbox"){
+                if (mailbox === "inbox" || mailbox === "archive") {
                     emailElement.style.backgroundColor = email.read ? "#f1f1f1" : "#ffffff";
                 }
                 
@@ -95,6 +95,16 @@ function loadEmail(emailId) {
             <hr>
             <p>${email.body}</p>
         `;
+
+        const archiveButton = document.createElement("button");
+        archiveButton.className = email.archived ? "btn btn-primary" : "btn btn-danger";
+        archiveButton.innerText = email.archived ? "Unarchive" : "Archive";
+
+        archiveButton.addEventListener("click", () => {
+            changeArchivedStatus(email.id, !email.archived);
+        });
+        emailDetail.appendChild(archiveButton);
+
         document.querySelector("#emails-view").style.display = "none";
         document.querySelector("#compose-view").style.display = "none";
         emailDetail.style.display = "block";
@@ -116,6 +126,24 @@ function changeReadStatus(emailId, isRead) {
         if (!response.ok) {
             throw new Error("Failed to update email read status");
         }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+
+function changeArchivedStatus(emailId, isArchived) {
+    fetch(`/emails/${emailId}`, {
+        method: "PUT",
+        body: JSON.stringify({ 
+            archived: isArchived
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to update email archived status");
+        }
+        loadMailbox("inbox");
     })
     .catch(error => {
         console.error("Error:", error);
